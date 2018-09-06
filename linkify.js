@@ -14,7 +14,7 @@ browser.storage.onChanged.addListener((changes, area) => {
 //http://www-ad.fnal.gov/cgi-bin/acl.pl?acl=~kissel/acl/mshow.acl+F:LNM1US+/device_index
 //https://www-bd.fnal.gov/cgi-bin/devices.pl/157689.html
 
-let deviceNameRE = new RegExp("[a-z]{1}:\\w{1,12}", "ig");
+let devicesRegExp = new RegExp("[a-z]{1}:\\w{1,12}(?!\\w)", "ig");
 
 function parseDeviceIndex(aclOutput) {
   try {
@@ -26,7 +26,7 @@ function parseDeviceIndex(aclOutput) {
 
 function getDevicePromise(device) {
   return fetch(
-    `/cgi-bin/acl.pl?acl=~kissel/acl/mshow.acl+${device}+/device_index`
+    `https://www-bd.fnal.gov/cgi-bin/acl.pl?acl=~kissel/acl/mshow.acl+${device}+/device_index`
   )
     .then(res => res.text())
     .then(parseDeviceIndex);
@@ -35,14 +35,54 @@ function getDevicePromise(device) {
 function generateF7Link(deviceIndices) {
   return match => {
     const di = deviceIndices[match];
-    return di ? `<a href="/cgi-bin/devices.pl/${di}.html">${match}</a>` : match;
+    return di
+      ? `<a href="https://www-bd.fnal.gov/cgi-bin/devices.pl/${di}.html">${match}</a>`
+      : match;
   };
+}
+
+let listenerReference = {};
+
+function f7Listener(deviceName) {
+  const fire = function(event) {
+    if (event.key !== "F7") return;
+    event.preventDefault();
+    getDevicePromise(deviceName).then(di => {
+      window.open(`https://www-bd.fnal.gov/cgi-bin/devices.pl/${di}.html`);
+    });
+  };
+
+  document.body.addEventListener("keypress", fire);
+  listenerReference[deviceName] = fire;
+}
+
+function mouseListeners(element) {
+  element.addEventListener("mouseenter", event => {
+    f7Listener(event.target.textContent);
+  });
+  element.addEventListener("mouseleave", event => {
+    document.body.removeEventListener(
+      "keypress",
+      listenerReference[event.target.textContent]
+    );
+  });
 }
 
 function linkify() {
   document.body.querySelectorAll("*").forEach(text => {
     try {
-      const devices = text.textContent.match(deviceNameRE);
+      // Ensure that this is the youngest child
+      if (text.childElementCount !== 0) return;
+
+      const devices = text.innerText.match(devicesRegExp);
+
+      if (text.tagName === "A") {
+        if (devices) {
+          mouseListeners(text);
+        }
+
+        return;
+      }
 
       const diPromises = devices.map(getDevicePromise);
 
@@ -58,11 +98,15 @@ function linkify() {
         })
         .then(devicesNamesWithIndicies => {
           const newText = text.innerHTML.replace(
-            deviceNameRE,
+            devicesRegExp,
             generateF7Link(devicesNamesWithIndicies)
           );
 
           text.innerHTML = newText;
+
+          for (child of text.children) {
+            mouseListeners(child);
+          }
         });
     } catch (error) {}
 
