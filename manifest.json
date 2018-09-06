@@ -1,0 +1,29 @@
+{
+    "manifest_version": 2,
+    "name": "Elog Help Links",
+    "version": "1.0",
+    "description": "Finds device names and adds links to their F7 help page.",
+    "icons": {
+        "48": "icons/auto-48.png"
+    },
+    "content_scripts": [
+        {
+          "matches": ["https://*.fnal.gov/Elog/*"],
+          "js": ["./linkify.js"]
+        }
+    ],
+    "options_ui": {
+        "page": "options.html",
+        "browser_style": true
+    },
+    "permissions": [
+        "https://*.fnal.gov/Elog/*",
+        "storage"
+    ],
+    "applications": {
+        "gecko": {
+          "id": "beau@fnal.gov",
+          "strict_min_version": "52.0"
+        }
+      }
+}
