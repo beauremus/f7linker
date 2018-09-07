@@ -8,7 +8,8 @@ function saveOptions(event) {
 function restoreOptions() {
   const localItem = browser.storage.local.get("linkifyEnabled");
   localItem.then(res => {
-    document.querySelector("#linkifyEnabled").checked = res.linkifyEnabled || true;
+    document.querySelector("#linkifyEnabled").checked =
+      res.linkifyEnabled || true;
     if (res.linkifyEnabled === undefined)
       browser.storage.local.set({ linkifyEnabled: true });
   });
@@ -23,4 +24,6 @@ browser.storage.onChanged.addListener((changes, area) => {
 
 document.addEventListener("DOMContentLoaded", restoreOptions);
 
-document.querySelector("#linkifyEnabled").addEventListener("change", saveOptions);
+document
+  .querySelector("#linkifyEnabled")
+  .addEventListener("change", saveOptions);
