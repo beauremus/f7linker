@@ -8,7 +8,7 @@ function saveOptions(event) {
 function restoreOptions() {
   const localItem = browser.storage.local.get("linkifyEnabled");
   localItem.then(res => {
-    const enabled = res.linkifyEnabled;
+    let enabled = res.linkifyEnabled;
 
     if (enabled === undefined) {
       browser.storage.local.set({ linkifyEnabled: true });
