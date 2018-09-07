@@ -1,13 +1,19 @@
+// TODO: monitor DOM change and linkify()
+
 let updateDelayInterval;
 
 browser.storage.local.get("linkifyEnabled").then(response => {
-  const enabled = response.linkifyEnabled || true;
+  const enabled = response.linkifyEnabled;
   if (enabled) linkify();
 });
 
 browser.storage.onChanged.addListener((changes, area) => {
-  if (changes.linkifyEnabled && area === "local") {
-    linkify();
+  if (area === "local") {
+    if (changes.linkifyEnabled) {
+      linkify();
+    } else {
+      // TODO: delinkify();
+    }
   }
 });
 
@@ -36,7 +42,7 @@ function generateF7Link(deviceIndices) {
   return match => {
     const di = deviceIndices[match];
     return di
-      ? `<a href="https://www-bd.fnal.gov/cgi-bin/devices.pl/${di}.html">${match}</a>`
+      ? `<a href="https://www-bd.fnal.gov/cgi-bin/devices.pl/${di}.html" class="f7linked">${match}</a>`
       : match;
   };
 }
