@@ -8,10 +8,14 @@ function saveOptions(event) {
 function restoreOptions() {
   const localItem = browser.storage.local.get("linkifyEnabled");
   localItem.then(res => {
-    document.querySelector("#linkifyEnabled").checked =
-      res.linkifyEnabled || true;
-    if (res.linkifyEnabled === undefined)
+    const enabled = res.linkifyEnabled;
+
+    if (enabled === undefined) {
       browser.storage.local.set({ linkifyEnabled: true });
+      enabled = true;
+    }
+
+    document.querySelector("#linkifyEnabled").checked = enabled;
   });
 }
 
