@@ -3,16 +3,15 @@
 let updateDelayInterval;
 
 browser.storage.local.get("linkifyEnabled").then(response => {
-  const enabled = response.linkifyEnabled;
-  if (enabled) linkify();
+  if (response.linkifyEnabled) linkify();
 });
 
 browser.storage.onChanged.addListener((changes, area) => {
   if (area === "local") {
-    if (changes.linkifyEnabled) {
+    if (changes.linkifyEnabled.newValue) {
       linkify();
     } else {
-      // TODO: delinkify();
+      delinkify();
     }
   }
 });
@@ -117,5 +116,14 @@ function linkify() {
     } catch (error) {}
 
     return false;
+  });
+}
+
+function delinkify() {
+  document.querySelectorAll(".f7linked").forEach(link => {
+    link.parentNode.innerHTML = link.parentNode.innerHTML.replace(
+      /<a .*? class=\"f7linked\">(.*?)<\/a>/gi,
+      "$1"
+    );
   });
 }
