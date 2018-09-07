@@ -8,7 +8,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.fnal.gov/*"],
+      "matches": ["https://*.fnal.gov/Elog*"],
       "js": ["./linkify.js"]
     }
   ],
@@ -16,7 +16,7 @@
     "page": "options.html",
     "browser_style": true
   },
-  "permissions": ["https://*.fnal.gov/*", "storage"],
+  "permissions": ["https://*.fnal.gov/Elog*", "storage"],
   "applications": {
     "gecko": {
       "id": "beau@fnal.gov",

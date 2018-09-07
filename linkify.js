@@ -16,6 +16,7 @@ browser.storage.onChanged.addListener((changes, area) => {
   }
 });
 
+// Reference URLs
 //http://www-ad.fnal.gov/cgi-bin/acl.pl?acl=~kissel/acl/mshow.acl+F:LNM1US+/device_index
 //https://www-bd.fnal.gov/cgi-bin/devices.pl/157689.html
 
@@ -34,6 +35,9 @@ function getDevicePromise(device) {
     `https://www-bd.fnal.gov/cgi-bin/acl.pl?acl=~kissel/acl/mshow.acl+${device}+/device_index`
   )
     .then(res => res.text())
+    .then(text => {
+      return text;
+    })
     .then(parseDeviceIndex);
 }
 
@@ -41,7 +45,7 @@ function generateF7Link(deviceIndices) {
   return match => {
     const di = deviceIndices[match];
     return di
-      ? `<a href="https://www-bd.fnal.gov/cgi-bin/devices.pl/${di}.html" class="f7linked">${match}</a>`
+      ? ` <a href="https://www-bd.fnal.gov/cgi-bin/devices.pl/${di}.html" class="f7linked">${match}</a>`
       : match;
   };
 }
@@ -74,12 +78,9 @@ function mouseListeners(element) {
 }
 
 function linkify() {
-  document.body.querySelectorAll("*").forEach(text => {
+  document.body.querySelectorAll(".text").forEach(text => {
     try {
-      // Ensure that this is the youngest child
-      if (text.childElementCount !== 0) return;
-
-      const devices = text.innerText.match(devicesRegExp);
+      const devices = text.innerHTML.match(devicesRegExp);
 
       if (text.tagName === "A") {
         if (devices) {
@@ -93,21 +94,19 @@ function linkify() {
 
       Promise.all(diPromises)
         .then(deviceDIs => {
-          let devicesWithIndicies = {};
+          let devicesWithIndices = {};
 
           deviceDIs.forEach((deviceDI, index) => {
-            devicesWithIndicies[devices[index]] = deviceDI;
+            devicesWithIndices[devices[index]] = deviceDI;
           });
 
-          return devicesWithIndicies;
+          return devicesWithIndices;
         })
-        .then(devicesNamesWithIndicies => {
-          const newText = text.innerHTML.replace(
+        .then(devicesNamesWithIndices => {
+          text.innerHTML = text.textContent.replace(
             devicesRegExp,
-            generateF7Link(devicesNamesWithIndicies)
+            generateF7Link(devicesNamesWithIndices)
           );
-
-          text.innerHTML = newText;
 
           for (child of text.children) {
             mouseListeners(child);
@@ -121,9 +120,6 @@ function linkify() {
 
 function delinkify() {
   document.querySelectorAll(".f7linked").forEach(link => {
-    link.parentNode.innerHTML = link.parentNode.innerHTML.replace(
-      /<a .*? class=\"f7linked\">(.*?)<\/a>/gi,
-      "$1"
-    );
+    link.replaceWith(link.textContent);
   });
 }
