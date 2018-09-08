@@ -19,7 +19,6 @@
   "permissions": ["https://*.fnal.gov/Elog*", "storage"],
   "applications": {
     "gecko": {
-      "id": "beau@fnal.gov",
       "strict_min_version": "52.0"
     }
   }
