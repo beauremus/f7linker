@@ -1,5 +1,3 @@
-// TODO: monitor DOM change and linkify()
-
 let updateDelayInterval;
 
 browser.storage.local.get("linkifyEnabled").then(response => {
@@ -14,6 +12,16 @@ browser.storage.onChanged.addListener((changes, area) => {
       delinkify();
     }
   }
+});
+
+const observer = new MutationObserver(mutations =>
+  mutations.forEach(mutation => {
+    if (mutation.oldValue === "display: block;") linkify();
+  })
+);
+
+observer.observe(document.querySelector("#loading"), {
+  attributeOldValue: true
 });
 
 // Reference URLs
