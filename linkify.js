@@ -28,7 +28,7 @@ observer.observe(document.querySelector("#loading"), {
 //http://www-ad.fnal.gov/cgi-bin/acl.pl?acl=~kissel/acl/mshow.acl+F:LNM1US+/device_index
 //https://www-bd.fnal.gov/cgi-bin/devices.pl/157689.html
 
-let devicesRegExp = new RegExp("[a-z]{1}:\\w{1,12}(?!\\w)", "ig");
+let devicesRegExp = new RegExp("\\b[a-z]{1}[:?_|&@$]{1}\\w{1,12}\\b", "ig");
 
 function parseDeviceIndex(aclOutput) {
   try {
@@ -53,7 +53,7 @@ function generateF7Link(deviceIndices) {
   return match => {
     const di = deviceIndices[match];
     return di
-      ? ` <a href="https://www-bd.fnal.gov/cgi-bin/devices.pl/${di}.html" class="f7linked">${match}</a>`
+      ? `<a href="https://www-bd.fnal.gov/cgi-bin/devices.pl/${di}.html" class="f7linked">${match}</a>`
       : match;
   };
 }
