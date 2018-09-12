@@ -1,7 +1,11 @@
 let updateDelayInterval;
 
 browser.storage.local.get("linkifyEnabled").then(response => {
-  if (response.linkifyEnabled) linkify();
+  if (response.linkifyEnabled === undefined) {
+    browser.storage.local.set({ linkifyEnabled: true });
+  } else if (response.linkifyEnabled) {
+    linkify();
+  }
 });
 
 browser.storage.onChanged.addListener((changes, area) => {
