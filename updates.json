@@ -1,0 +1,32 @@
+{
+  "addons": {
+    "f7linker@fnal.gov": {
+      "updates": [
+        {
+          "version": "1.0",
+          "update_link": "https://www-bd.fnal.gov/ops/beau/f7Links/web-ext-artifacts/f7_help_links-1.0-an+fx.xpi"
+        },
+        {
+          "version": "1.1",
+          "update_link": "https://www-bd.fnal.gov/ops/beau/f7Links/web-ext-artifacts/f7_help_links-1.1-an+fx.xpi"
+        },
+        {
+          "version": "1.1.1",
+          "update_link": "https://www-bd.fnal.gov/ops/beau/f7Links/web-ext-artifacts/f7_help_links-1.1.1-an+fx.xpi"
+        },
+        {
+          "version": "1.1.2",
+          "update_link": "https://www-bd.fnal.gov/ops/beau/f7Links/web-ext-artifacts/f7_help_links-1.1.2-an+fx.xpi"
+        },
+        {
+          "version": "1.2.0",
+          "update_link": "https://www-bd.fnal.gov/ops/beau/f7Links/web-ext-artifacts/f7_help_links-1.2.0-an+fx.xpi"
+        },
+        {
+          "version": "1.2.1",
+          "update_link": "https://www-bd.fnal.gov/ops/beau/f7Links/web-ext-artifacts/f7_help_links-1.2.1-an+fx.xpi"
+        }
+      ]
+    }
+  }
+}
