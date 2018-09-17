@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "F7 Help Links",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Finds device names and adds links to their F7 help page.",
   "icons": {
     "48": "icons/auto-48.png"
