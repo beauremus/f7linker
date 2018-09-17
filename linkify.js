@@ -32,7 +32,7 @@ observer.observe(document.querySelector("#loading"), {
 //http://www-ad.fnal.gov/cgi-bin/acl.pl?acl=~kissel/acl/mshow.acl+F:LNM1US+/device_index
 //https://www-bd.fnal.gov/cgi-bin/devices.pl/157689.html
 
-let devicesRegExp = new RegExp("\\b[a-z]{1}[:?_|&@$]{1}\\w{1,12}\\b", "ig");
+let devicesRegExp = new RegExp("\\b[a-z]{1}[;:?_|&@$]{1}\\w{1,12}\\b", "ig");
 
 function parseDeviceIndex(aclOutput) {
   try {
@@ -89,6 +89,10 @@ function mouseListeners(element) {
   });
 }
 
+function semicolonCorrection(device) {
+  return device.replace(';', ':')
+}
+
 function linkify() {
   document.body.querySelectorAll(".text").forEach(text => {
     try {
@@ -102,7 +106,7 @@ function linkify() {
         return;
       }
 
-      const diPromises = devices.map(getDevicePromise);
+      const diPromises = devices.map(semicolonCorrection).map(getDevicePromise);
 
       Promise.all(diPromises)
         .then(deviceDIs => {
