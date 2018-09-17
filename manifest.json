@@ -19,6 +19,7 @@
   "permissions": ["https://*.fnal.gov/Elog*", "storage"],
   "applications": {
     "gecko": {
+      "update_url": "https://www-bd.fnal.gov/ops/beau/f7linker.json",
       "id": "f7linker1.1.1@extensions.io",
       "strict_min_version": "52.0"
     }
