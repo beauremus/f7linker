@@ -18,21 +18,22 @@ browser.storage.onChanged.addListener((changes, area) => {
   }
 });
 
-const observer = new MutationObserver(mutations =>
-  mutations.forEach(mutation => {
-    if (mutation.oldValue === "display: block;") linkify();
-  })
-);
+/**
+ * Observer rewrites links that are overwritten by ELog update function
+ */
+const loadingSpinner = document.querySelector("#loading");
 
-observer.observe(document.querySelector("#loading"), {
-  attributeOldValue: true
-});
+if (loadingSpinner) {
+  const observer = new MutationObserver(mutations =>
+    mutations.forEach(mutation => {
+      if (mutation.oldValue === "display: block;") linkify();
+    })
+  );
 
-// Reference URLs
-//http://www-ad.fnal.gov/cgi-bin/acl.pl?acl=~kissel/acl/mshow.acl+F:LNM1US+/device_index
-//https://www-bd.fnal.gov/cgi-bin/devices.pl/157689.html
-
-let devicesRegExp = new RegExp("\\b[a-z]{1}[;:?_|&@$]{1}\\w{1,12}\\b", "ig");
+  observer.observe(loadingSpinner, {
+    attributeOldValue: true
+  });
+}
 
 function parseDeviceIndex(aclOutput) {
   try {
@@ -41,6 +42,14 @@ function parseDeviceIndex(aclOutput) {
 
   return false;
 }
+
+/**
+ * Reference URLs
+ * Web ACL for getting device_index
+ * http://www-ad.fnal.gov/cgi-bin/acl.pl?acl=~kissel/acl/mshow.acl+F:LNM1US+/device_index
+ * F7 help URL format
+ * https://www-bd.fnal.gov/cgi-bin/devices.pl/157689.html
+ */
 
 function getDevicePromise(device) {
   return fetch(
@@ -54,13 +63,17 @@ function getDevicePromise(device) {
 }
 
 function generateF7Link(deviceIndices) {
-  return match => {
-    const di = deviceIndices[match];
+  return (fullMatch, group1, group2, group3) => {
+    const di = deviceIndices[group2];
     return di
-      ? `<a href="https://www-bd.fnal.gov/cgi-bin/devices.pl/${di}.html" class="f7linked">${match}</a>`
-      : match;
+      ? `${group1}<a href="https://www-bd.fnal.gov/cgi-bin/devices.pl/${di}.html" class="f7linked">${group2}</a>${group3}`
+      : fullMatch;
   };
 }
+
+/**
+ * listenerReference must be held to refer to in remove listener
+ */
 
 let listenerReference = {};
 
@@ -78,6 +91,10 @@ function f7Listener(deviceName) {
 }
 
 function mouseListeners(element) {
+  /**
+   * If mouse events aren't added and removed
+   * all eventListeners are triggered on keypress
+   */
   element.addEventListener("mouseenter", event => {
     f7Listener(event.target.textContent);
   });
@@ -90,48 +107,85 @@ function mouseListeners(element) {
 }
 
 function semicolonCorrection(device) {
-  return device.replace(';', ':')
+  return device.replace(";", ":");
+}
+
+function injectF7Links(element) {
+  try {
+    /**
+     * Example of RegExp https://regex101.com/r/MQ7lNe/3/
+     */
+    let devicesRegExp = new RegExp(
+      "((?:<[^>]*>|[.,\\s])*)(\\w{1}[;:?_|&@$]\\w{1,12})((?:<[^>]*>|[.,\\s])*)",
+      "gi"
+    );
+    let devices = [];
+    let matches;
+    let hasLinkedDevice = false;
+
+    while ((matches = devicesRegExp.exec(element.innerHTML)) !== null) {
+      /**
+       * "</a>" in the fourth index indicates that
+       * the device name is inside a link tag
+       */
+      if (matches[3] !== "</a>") {
+        devices.push(matches[2]);
+      } else {
+        hasLinkedDevice = true;
+      }
+    }
+
+    const diPromises = devices
+      .map(semicolonCorrection)
+      .map(device => {
+        return device;
+      })
+      .map(getDevicePromise);
+
+    Promise.all(diPromises)
+      .then(deviceDIs => {
+        let devicesWithIndices = {};
+
+        deviceDIs.forEach((deviceDI, index) => {
+          devicesWithIndices[devices[index]] = deviceDI;
+        });
+
+        return devicesWithIndices;
+      })
+      .then(devicesNamesWithIndices => {
+        element.innerHTML = element.innerHTML.replace(
+          devicesRegExp,
+          generateF7Link(devicesNamesWithIndices)
+        );
+
+        element.querySelectorAll(".f7linked").forEach(link => {
+          mouseListeners(link);
+        });
+
+        if (hasLinkedDevice) {
+          element.querySelectorAll("a").forEach(link => {
+            if (link.textContent.match(/\w{1}[;:?_|&@$]\w{1,12}/gi)) {
+              mouseListeners(link);
+            }
+          });
+        }
+      });
+  } catch (error) {
+    console.error(error);
+  }
+
+  return false;
 }
 
 function linkify() {
-  document.body.querySelectorAll(".text").forEach(text => {
-    try {
-      const devices = text.innerHTML.match(devicesRegExp);
+  const selectors = {
+    elog: ".text",
+    deviceHelp: "pre"
+  };
 
-      if (text.tagName === "A") {
-        if (devices) {
-          mouseListeners(text);
-        }
-
-        return;
-      }
-
-      const diPromises = devices.map(semicolonCorrection).map(getDevicePromise);
-
-      Promise.all(diPromises)
-        .then(deviceDIs => {
-          let devicesWithIndices = {};
-
-          deviceDIs.forEach((deviceDI, index) => {
-            devicesWithIndices[devices[index]] = deviceDI;
-          });
-
-          return devicesWithIndices;
-        })
-        .then(devicesNamesWithIndices => {
-          text.innerHTML = text.textContent.replace(
-            devicesRegExp,
-            generateF7Link(devicesNamesWithIndices)
-          );
-
-          for (child of text.children) {
-            mouseListeners(child);
-          }
-        });
-    } catch (error) {}
-
-    return false;
-  });
+  for (const selector in selectors) {
+    document.body.querySelectorAll(selectors[selector]).forEach(injectF7Links);
+  }
 }
 
 function delinkify() {
