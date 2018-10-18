@@ -1,4 +1,10 @@
 let updateDelayInterval;
+const dabblePrefixes = "[LCBDAPTSGIJXZEFRMUV]";
+const propSymbols = "[;:_|]";
+const deviceRegex = new RegExp(
+  `${dabblePrefixes}${propSymbols}\\w{1,12}`,
+  "gi"
+);
 
 browser.storage.local.get("linkifyEnabled").then(response => {
   if (response.linkifyEnabled === undefined) {
@@ -116,7 +122,7 @@ function injectF7Links(element) {
      * Example of RegExp https://regex101.com/r/MQ7lNe/3/
      */
     let devicesRegExp = new RegExp(
-      "((?:<[^>]*>|[.,\\s])*)(\\w{1}[;:?_|&@$]\\w{1,12})((?:<[^>]*>|[.,\\s])*)",
+      `((?:<[^>]*>|[.,\\s])*)(${dabblePrefixes}${propSymbols}\\w{1,12})((?:<[^>]*>|[.,\\s])*)`,
       "gi"
     );
     let devices = [];
@@ -164,7 +170,7 @@ function injectF7Links(element) {
 
         if (hasLinkedDevice) {
           element.querySelectorAll("a").forEach(link => {
-            if (link.textContent.match(/\w{1}[;:?_|&@$]\w{1,12}/gi)) {
+            if (link.textContent.match(deviceRegex)) {
               mouseListeners(link);
             }
           });
