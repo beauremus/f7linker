@@ -45,6 +45,11 @@
           "version": "1.3.3",
           "update_link": "https://www-bd.fnal.gov/ops/beau/f7Links/web-ext-artifacts/f7_help_links-1.3.3-an+fx.xpi",
           "update_info_url": "https://www-bd.fnal.gov/ops/beau/f7Links/updates/1.3.3.html"
+        },
+        {
+          "version": "1.3.5",
+          "update_link": "https://www-bd.fnal.gov/ops/beau/f7Links/web-ext-artifacts/f7_help_links-1.3.5-an+fx.xpi",
+          "update_info_url": "https://www-bd.fnal.gov/ops/beau/f7Links/updates/1.3.5.html"
         }
       ]
     }
