@@ -12,4 +12,4 @@ to link to the appropriate help page:
 
 ## Build
 
-I'm using the [web-ext](https://www.npmjs.com/package/web-ext) package to test and build this extenion.
+I'm using the [web-ext](https://www.npmjs.com/package/web-ext) package to test and build this extension.

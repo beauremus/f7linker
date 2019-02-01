@@ -71,7 +71,7 @@ function getDevicePromise(device) {
 function generateF7Link(deviceIndices) {
   return (fullMatch, group1, group2, group3) => {
     const di = deviceIndices[group2];
-    return di
+    return di && group1 !== "=" && group3 !== "</a>"
       ? `${group1}<a href="https://www-bd.fnal.gov/cgi-bin/devices.pl/${di}.html" class="f7linked">${group2}</a>${group3}`
       : fullMatch;
   };
@@ -122,7 +122,7 @@ function injectF7Links(element) {
      * Example of RegExp https://regex101.com/r/MQ7lNe/3/
      */
     let devicesRegExp = new RegExp(
-      `((?:<[^>]*>|[.,\\s])*)(${dabblePrefixes}${propSymbols}\\w{1,12})((?:<[^>]*>|[.,\\s])*)`,
+      `((?:=|<[^>]*>|[.,\\s])*)(${dabblePrefixes}${propSymbols}\\w{1,12})((?:<[^>]*>|[.,\\s])*)`,
       "gi"
     );
     let devices = [];
@@ -133,8 +133,12 @@ function injectF7Links(element) {
       /**
        * "</a>" in the fourth index indicates that
        * the device name is inside a link tag
+       * "=" in the second index indicates that it's
+       * being used as a query parameter
        */
-      if (matches[3] !== "</a>") {
+      if (matches[1] === "=") {
+        continue;
+      } else if (matches[3] !== "</a>") {
         devices.push(matches[2]);
       } else {
         hasLinkedDevice = true;
